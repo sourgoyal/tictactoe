@@ -5,12 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"net/http"
 	"strings"
 	"testing"
+	"tictactoe/bot"
 	"tictactoe/gen/models"
-	"time"
 
 	"github.com/go-openapi/strfmt"
 )
@@ -150,20 +149,7 @@ func putAGame(url string, currBoard []rune) error {
 
 	method := "PUT"
 
-	bkBoard := make([]rune, 9)
-	userSym := 'X'
-	copy(bkBoard, currBoard)
-
-	var playSlice []int
-	for i := range currBoard {
-		if currBoard[i] == '-' {
-			playSlice = append(playSlice, i)
-		}
-	}
-	rand.Seed(time.Now().UnixNano())
-	randIndex := rand.Intn(len(playSlice) - 1)
-	bkBoard[randIndex] = userSym
-	boardStr := string(bkBoard)
+	boardStr := bot.RobotMove(currBoard, 'X')
 	fmt.Printf("After User move %s\n", boardStr)
 
 	game := models.Game{Board: &boardStr}

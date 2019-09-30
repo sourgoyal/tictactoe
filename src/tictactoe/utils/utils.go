@@ -2,16 +2,18 @@ package utils
 
 import (
 	"errors"
-	"math/rand"
 	"strings"
 	"tictactoe/gen/models"
-	"time"
+
+	"github.com/go-openapi/strfmt"
+	"github.com/google/uuid"
 )
 
 const (
 	Blank string = "---------"
 )
 
+// Return winner X or O
 func Winner(sym rune) string {
 	if sym == 'X' {
 		return models.GameStatusXWON
@@ -19,6 +21,7 @@ func Winner(sym rune) string {
 	return models.GameStatusOWON
 }
 
+// returns game status - Running, Draw, XWins or OWins
 func GetGameStatus(board string) string {
 	b := []rune(board)
 
@@ -60,6 +63,7 @@ func GetGameStatus(board string) string {
 	return models.GameStatusDRAW
 }
 
+// Returns robot symbol, default is X
 func GetBkSym(userSym rune) rune {
 	if userSym == 'X' {
 		return 'O'
@@ -67,27 +71,26 @@ func GetBkSym(userSym rune) rune {
 	return 'X'
 }
 
-func BackendMove(currBoard []rune, bkSym rune) string {
-	bkBoard := make([]rune, 9)
-	copy(bkBoard, currBoard)
-
-	var playSlice []int
-	for i := range currBoard {
-		if currBoard[i] == '-' {
-			playSlice = append(playSlice, i)
-		}
+func GenerateUUID() (strfmt.UUID, error) {
+	id, err := uuid.NewUUID()
+	if err != nil {
+		return strfmt.UUID(""), err
 	}
-	rand.Seed(time.Now().UnixNano())
-	randIndex := rand.Intn(len(playSlice) - 1)
-	bkBoard[randIndex] = bkSym
 
-	return string(bkBoard)
+	return strfmt.UUID(id.String()), nil
 }
 
+// Validate User move
 func ValidateUserMove(board string, before string) (rune, error) {
 	userSym := rune('X')
 	if len(board) != 9 {
 		return userSym, errors.New("Invalid Input! board length is not 9")
+	}
+
+	for i := range board {
+		if (board[i] != '-') && (board[i] != 'X') && (board[i] != 'O') {
+			return userSym, errors.New("Invalid symbol in board")
+		}
 	}
 
 	moves := 0

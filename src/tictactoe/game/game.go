@@ -3,6 +3,7 @@ package game
 import (
 	"log"
 	"net/url"
+	"tictactoe/bot"
 	"tictactoe/db"
 	"tictactoe/gen/models"
 	"tictactoe/gen/restapi/operations"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/google/uuid"
 )
 
 // DNS Info data structure
@@ -60,7 +60,7 @@ func (g *GameInfo) PlayGame(gameID strfmt.UUID, game *models.Game) middleware.Re
 	backendGame.Board = game.Board
 	if gameStatus == models.GameStatusRUNNING {
 		bkSym := utils.GetBkSym(userSym)
-		bkBoard := utils.BackendMove([]rune(*game.Board), bkSym)
+		bkBoard := bot.RobotMove([]rune(*game.Board), bkSym)
 		backendGame.Board = &bkBoard
 		gameStatus = utils.GetGameStatus(bkBoard)
 	}
@@ -81,12 +81,10 @@ func (g *GameInfo) PlayGame(gameID strfmt.UUID, game *models.Game) middleware.Re
 }
 
 func (g *GameInfo) CreateGame(game *models.Game, reqURL *url.URL) middleware.Responder {
-	id, err := uuid.NewUUID()
+	gameID, err := utils.GenerateUUID()
 	if err != nil {
 		return operations.NewPostAPIV1GamesInternalServerError()
 	}
-	gameID := strfmt.UUID(id.String())
-
 	if g.db.GameExists(gameID) {
 		return operations.NewPostAPIV1GamesInternalServerError()
 	}
@@ -96,11 +94,10 @@ func (g *GameInfo) CreateGame(game *models.Game, reqURL *url.URL) middleware.Res
 	userSym, err := utils.ValidateUserMove(*board, utils.Blank)
 	if err != nil {
 		return operations.NewPostAPIV1GamesBadRequest().WithPayload(&operations.PostAPIV1GamesBadRequestBody{Reason: err.Error()})
-		// return operations.NewPostAPIV1GamesBadRequest()
 	}
 
 	bkSym := utils.GetBkSym(userSym)
-	bkBoard := utils.BackendMove([]rune(*board), bkSym)
+	bkBoard := bot.RobotMove([]rune(*board), bkSym)
 
 	backendGame := models.Game{Board: &bkBoard, ID: gameID, Status: models.GameStatusRUNNING}
 	gameD := db.GameData{UserSymbol: userSym, UserTurn: true, Game: backendGame}
@@ -125,6 +122,7 @@ func (g *GameInfo) DeleteGame(ID strfmt.UUID) middleware.Responder {
 
 	return operations.NewDeleteAPIV1GamesGameIDOK()
 }
+
 func (g *GameInfo) GetGameDetails(ID strfmt.UUID) middleware.Responder {
 	var errCode db.GameDBErrorCode
 	var game models.Game
