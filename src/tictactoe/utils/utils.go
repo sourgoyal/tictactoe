@@ -1,3 +1,4 @@
+// Package utils, implements utility functions used by game TicTacToe.
 package utils
 
 import (
@@ -10,10 +11,10 @@ import (
 )
 
 const (
-	Blank string = "---------"
+	Blank string = "---------" // Blank board state
 )
 
-// Return winner X or O
+// Winner return winner X or O.
 func Winner(sym rune) string {
 	if sym == 'X' {
 		return models.GameStatusXWON
@@ -21,7 +22,7 @@ func Winner(sym rune) string {
 	return models.GameStatusOWON
 }
 
-// returns game status - Running, Draw, XWins or OWins
+// GetGameStatus, takes board as input and returns game status - Running, Draw, XWins or OWins.
 func GetGameStatus(board string) string {
 	b := []rune(board)
 
@@ -63,7 +64,7 @@ func GetGameStatus(board string) string {
 	return models.GameStatusDRAW
 }
 
-// Returns robot symbol, default is X
+// GetBkSym takes user symbol as input and returns robot symbol, default is X.
 func GetBkSym(userSym rune) rune {
 	if userSym == 'X' {
 		return 'O'
@@ -71,6 +72,7 @@ func GetBkSym(userSym rune) rune {
 	return 'X'
 }
 
+// GenerateUUID, uses google/uuid package to generate a UUID.
 func GenerateUUID() (strfmt.UUID, error) {
 	id, err := uuid.NewUUID()
 	if err != nil {
@@ -80,7 +82,7 @@ func GenerateUUID() (strfmt.UUID, error) {
 	return strfmt.UUID(id.String()), nil
 }
 
-// Validate User move
+// ValidateUserMove, validates User move
 func ValidateUserMove(board string, before string) (rune, error) {
 	userSym := rune('X')
 	if len(board) != 9 {
