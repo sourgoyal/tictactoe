@@ -145,7 +145,7 @@ func (g *GameInfo) PlayGame(gameID strfmt.UUID, game *models.Game) middleware.Re
 	if gameStatus == models.GameStatusRUNNING {
 		bkSym := utils.GetBkSym(userSym)
 
-		// make a backend move using bot.RobotMove()
+		// make a backend move using bot.RobotMoveOptimum()
 		bkBoard := bot.RobotMoveOptimum([]rune(*game.Board), bkSym)
 		backendGame.Board = &bkBoard
 

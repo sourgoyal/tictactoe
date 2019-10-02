@@ -19,9 +19,10 @@ import (
 
 const (
 	URL                     string = "http://127.0.0.1:8000/api/v1/games" // Default URL
-	NumberOfConcurrentUsers        = 100                                  // As Server doesn't implement throttling, Test sleeps for 1 Second after every 100th request
+	NumberOfConcurrentUsers        = 1                                    // As Server doesn't implement throttling, Test sleeps for 1 Second after every 100th request
 	UserSym                 rune   = 'X'
 	BlankBoard              string = "---------"
+	prettyBoardEnabled      bool   = true // set is true to see pretty board logs
 )
 
 // TestE2EFullGame, runs full end-to-end test
@@ -56,7 +57,7 @@ func TestE2EFullGame(t *testing.T) {
 			}
 			gameStatus := game.Status
 			board := *game.Board
-			// fmt.Printf("Bot played move! gameID %s board %s Status %s\n", gameID, board, gameStatus)
+			printPrettyBoard(board, gameID, gameStatus, true)
 			if gameStatus != models.GameStatusRUNNING {
 				t.Errorf("game must have been running here! gameID %s\n", gameID)
 				return
@@ -68,7 +69,7 @@ func TestE2EFullGame(t *testing.T) {
 			for gameStatus == models.GameStatusRUNNING {
 				// User move
 				board = bot.RobotMoveOptimum([]rune(board), UserSym)
-				// fmt.Printf("User played move! gameID %s board %s Status %s\n", gameID, board, gameStatus)
+				printPrettyBoard(board, gameID, gameStatus, false)
 				// PUT it to Robot, and receive the response
 				game, err = playUserMove(gameID, board)
 				if err != nil || game == nil {
@@ -81,7 +82,7 @@ func TestE2EFullGame(t *testing.T) {
 					t.Error("error occurred in PUT method playing a move ", err)
 					return
 				}
-				// fmt.Printf("Bot played move! gameID %s board %s Status %s\n", gameID, board, gameStatus)
+				printPrettyBoard(board, gameID, gameStatus, true)
 			}
 			log.Printf("Final Game Status %+v %+v %s\n", gameID, gameStatus, board)
 		}()
@@ -91,6 +92,19 @@ func TestE2EFullGame(t *testing.T) {
 		}
 	}
 	wg.Wait()
+}
+
+func printPrettyBoard(b, id, status string, backendPlayer bool) {
+	if prettyBoardEnabled {
+		if backendPlayer {
+			fmt.Printf("BackendPlayer played move! gameID %s board %s Status %s\n", id, b, status)
+		} else {
+			fmt.Printf("TestPlayer played move! gameID %s board %s Status %s\n", id, b, status)
+		}
+		fmt.Println(string(b[0]) + "  " + string(b[1]) + "  " + string(b[2]))
+		fmt.Println(string(b[3]) + "  " + string(b[4]) + "  " + string(b[5]))
+		fmt.Println(string(b[6]) + "  " + string(b[7]) + "  " + string(b[8]))
+	}
 }
 
 func TestGetAll(t *testing.T) {

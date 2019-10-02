@@ -79,8 +79,9 @@ func winPossiblity(b []rune, sym rune) int {
 			}
 		}
 		if count == 2 && index < 9 {
-			break
+			return index
 		}
 	}
-	return index
+
+	return 10
 }
