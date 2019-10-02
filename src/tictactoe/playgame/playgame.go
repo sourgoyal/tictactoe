@@ -146,7 +146,7 @@ func (g *GameInfo) PlayGame(gameID strfmt.UUID, game *models.Game) middleware.Re
 		bkSym := utils.GetBkSym(userSym)
 
 		// make a backend move using bot.RobotMove()
-		bkBoard := bot.RobotMove([]rune(*game.Board), bkSym)
+		bkBoard := bot.RobotMoveOptimum([]rune(*game.Board), bkSym)
 		backendGame.Board = &bkBoard
 
 		// Check board for any win or draw after backend move

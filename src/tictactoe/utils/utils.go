@@ -14,6 +14,17 @@ const (
 	Blank string = "---------" // Blank board state
 )
 
+var WinningCombo = [][]int{
+	{0, 1, 2},
+	{3, 4, 5},
+	{6, 7, 8},
+	{0, 3, 6},
+	{1, 4, 7},
+	{2, 5, 8},
+	{0, 4, 8},
+	{2, 4, 6},
+}
+
 // Winner return winner X or O.
 func Winner(sym rune) string {
 	if sym == 'X' {
@@ -26,34 +37,23 @@ func Winner(sym rune) string {
 func GetGameStatus(board string) string {
 	b := []rune(board)
 
-	// Diagonal
-	if b[0] != '-' && b[0] == b[4] && b[0] == b[8] {
-		return Winner(b[0])
-	}
-	if b[2] != '-' && b[2] == b[4] && b[2] == b[6] {
-		return Winner(b[2])
-	}
-
-	// Rows
-	if b[0] != '-' && b[0] == b[1] && b[1] == b[2] {
-		return Winner(b[0])
-	}
-	if b[3] != '-' && b[3] == b[4] && b[3] == b[5] {
-		return Winner(b[3])
-	}
-	if b[6] != '-' && b[6] == b[7] && b[7] == b[8] {
-		return Winner(b[6])
-	}
-
-	// Collumns
-	if b[0] != '-' && b[0] == b[3] && b[3] == b[6] {
-		return Winner(b[0])
-	}
-	if b[1] != '-' && b[1] == b[4] && b[1] == b[7] {
-		return Winner(b[1])
-	}
-	if b[2] != '-' && b[2] == b[5] && b[2] == b[8] {
-		return Winner(b[2])
+	for i := range WinningCombo {
+		xCount := 0
+		oCount := 0
+		for j := range WinningCombo[i] {
+			if b[WinningCombo[i][j]] == '-' {
+				break
+			} else if b[WinningCombo[i][j]] == 'X' {
+				xCount++
+			} else if b[WinningCombo[i][j]] == 'O' {
+				oCount++
+			}
+		}
+		if xCount == 3 {
+			return Winner('X')
+		} else if oCount == 3 {
+			return Winner('O')
+		}
 	}
 
 	for i := range board {
@@ -61,6 +61,7 @@ func GetGameStatus(board string) string {
 			return models.GameStatusRUNNING
 		}
 	}
+
 	return models.GameStatusDRAW
 }
 

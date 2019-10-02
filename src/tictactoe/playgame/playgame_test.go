@@ -67,7 +67,7 @@ func TestE2EFullGame(t *testing.T) {
 			// 'bot' package is used to simulate user moves. Same is used by backend also
 			for gameStatus == models.GameStatusRUNNING {
 				// User move
-				board = bot.RobotMove([]rune(board), UserSym)
+				board = bot.RobotMoveOptimum([]rune(board), UserSym)
 				// fmt.Printf("User played move! gameID %s board %s Status %s\n", gameID, board, gameStatus)
 				// PUT it to Robot, and receive the response
 				game, err = playUserMove(gameID, board)
