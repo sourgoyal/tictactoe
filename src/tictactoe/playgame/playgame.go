@@ -65,7 +65,7 @@ func (g *GameInfo) CreateGame(game *models.Game, reqURL *url.URL) middleware.Res
 	// Get backend symbol
 	bkSym := utils.GetBkSym(userSym)
 	// RobotMove implements a robot functionality. It decides on which move to take on the board for backend
-	bkBoard := bot.RobotMove([]rune(board), bkSym)
+	bkBoard := bot.RobotMoveOptimum([]rune(board), bkSym)
 
 	// Add game to db
 	backendGame := models.Game{Board: &bkBoard, ID: gameID, Status: models.GameStatusRUNNING}

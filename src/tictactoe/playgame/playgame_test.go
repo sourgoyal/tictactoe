@@ -22,7 +22,7 @@ const (
 	NumberOfConcurrentUsers        = 1                                    // As Server doesn't implement throttling, Test sleeps for 1 Second after every 100th request
 	UserSym                 rune   = 'X'
 	BlankBoard              string = "---------"
-	prettyBoardEnabled      bool   = true // set is true to see pretty board logs
+	prettyBoardEnabled      bool   = false // set is true to see pretty board logs
 )
 
 // TestE2EFullGame, runs full end-to-end test
@@ -68,7 +68,7 @@ func TestE2EFullGame(t *testing.T) {
 			// 'bot' package is used to simulate user moves. Same is used by backend also
 			for gameStatus == models.GameStatusRUNNING {
 				// User move
-				board = bot.RobotMoveOptimum([]rune(board), UserSym)
+				board = bot.RobotMoveOptimumTest([]rune(board), UserSym)
 				printPrettyBoard(board, gameID, gameStatus, false)
 				// PUT it to Robot, and receive the response
 				game, err = playUserMove(gameID, board)
@@ -289,7 +289,7 @@ func createAGame() (string, error) {
 	method := "POST"
 
 	// Bot will choose the step
-	boardStr := bot.RobotMove([]rune(BlankBoard), UserSym)
+	boardStr := bot.RobotMoveOptimumTest([]rune(BlankBoard), UserSym)
 	game := models.Game{Board: &boardStr}
 	payload, _ := json.Marshal(&game)
 
@@ -382,4 +382,12 @@ func playUserMove(gameID string, currBoard string) (*models.Game, error) {
 	}
 
 	return &game, nil
+}
+
+func BenchmarkRobotMoveOptimum(b *testing.B) {
+	board := "---------"
+	for i := 0; i < 1; i++ {
+		bot.RobotMoveOptimum([]rune(board), 'X')
+	}
+
 }
